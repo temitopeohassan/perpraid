@@ -18,16 +18,33 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('combined'));
 
-// Initialize services
+// Initialize services independently
 async function initializeServices() {
+  const results = {
+    firebase: false,
+    dydx: false
+  };
+
+  // Initialize Firebase
   try {
     await firebaseClient.initialize();
-    await dydxClient.initialize();
-    console.log('All services initialized successfully');
+    results.firebase = true;
+    console.log('✓ Firebase initialized successfully');
   } catch (error) {
-    console.error('Failed to initialize services:', error);
-    process.exit(1);
+    console.error('✗ Failed to initialize Firebase:', error.message);
   }
+
+  // Initialize dYdX (non-blocking - server can start without it)
+  try {
+    await dydxClient.initialize();
+    results.dydx = true;
+    console.log('✓ dYdX clients initialized successfully');
+  } catch (error) {
+    console.error('✗ Failed to initialize dYdX clients:', error.message);
+    console.warn('⚠ Server will start without dYdX connection. Some features may be unavailable.');
+  }
+
+  return results;
 }
 
 // Import routes
@@ -67,10 +84,21 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Start server
-initializeServices().then(() => {
+// Start server (don't wait for all services - start even if some fail)
+initializeServices().then((results) => {
   app.listen(PORT, () => {
-    console.log(`Base Perps Pro Server running on port ${PORT}`);
+    console.log(`\n🚀 Base Perps Pro Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Service Status:`);
+    console.log(`  - Firebase: ${results.firebase ? '✓ Connected' : '✗ Disconnected'}`);
+    console.log(`  - dYdX: ${results.dydx ? '✓ Connected' : '✗ Disconnected'}`);
+    console.log('');
+  });
+}).catch((error) => {
+  console.error('Critical error during initialization:', error);
+  // Still start the server - Firebase might be working
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Base Perps Pro Server running on port ${PORT} (with limited functionality)`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 });
