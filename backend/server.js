@@ -8,11 +8,27 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Initialize Firebase
+const firebaseClient = require('./config/firebase');
+const dydxClient = require('./config/dydx');
+
 // Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(morgan('combined'));
+
+// Initialize services
+async function initializeServices() {
+  try {
+    await firebaseClient.initialize();
+    await dydxClient.initialize();
+    console.log('All services initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize services:', error);
+    process.exit(1);
+  }
+}
 
 // Import routes
 const marketRoutes = require('./routes/markets');
@@ -28,7 +44,12 @@ app.use('/api/risk', riskRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    firebase: firebaseClient.initialized ? 'connected' : 'disconnected',
+    dydx: dydxClient.indexerClient ? 'connected' : 'disconnected'
+  });
 });
 
 // Error handling middleware
@@ -46,9 +67,12 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Base Perps Pro Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+// Start server
+initializeServices().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Base Perps Pro Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
 });
 
 module.exports = app;
