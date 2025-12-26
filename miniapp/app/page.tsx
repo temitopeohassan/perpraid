@@ -1,14 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { sdk } from "@farcaster/miniapp-sdk"
 import { PortfolioPage } from "@/components/pages/portfolio-page"
 import { MarketsPage } from "@/components/pages/markets-page"
 import { PositionsPage } from "@/components/pages/positions-page"
 import { HistoryPage } from "@/components/pages/history-page"
 import { BottomNav } from "@/components/navigation/bottom-nav"
+import { Header } from "@/components/navigation/header"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"portfolio" | "markets" | "positions" | "history">("portfolio")
+
+  // Initialize Farcaster Mini App SDK and signal readiness
+  useEffect(() => {
+    // Signal to Farcaster client that the app is ready to display
+    sdk.actions.ready()
+  }, [])
+
+  const handleMenuClick = (item: "home" | "positions" | "wallet") => {
+    switch (item) {
+      case "home":
+        setActiveTab("portfolio")
+        break
+      case "positions":
+        setActiveTab("positions")
+        break
+      case "wallet":
+        // For now, navigate to portfolio for wallet
+        // You can create a dedicated wallet page later if needed
+        setActiveTab("portfolio")
+        break
+    }
+  }
 
   const renderPage = () => {
     switch (activeTab) {
@@ -27,7 +51,8 @@ export default function Home() {
 
   return (
     <main className="flex flex-col h-screen bg-background">
-      <div className="flex-1 overflow-y-auto pb-20">{renderPage()}</div>
+      <Header onMenuClick={handleMenuClick} />
+      <div className="flex-1 overflow-y-auto pb-20 pt-24">{renderPage()}</div>
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </main>
   )
