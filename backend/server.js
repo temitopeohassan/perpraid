@@ -54,6 +54,12 @@ const tradingRoutes = require('./routes/trading');
 const riskRoutes = require('./routes/risk');
 
 // Routes
+
+app.get('/', (req, res) => {
+  res.send('Perp Raid API is running.');
+});
+
+
 app.use('/api/markets', marketRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/trading', tradingRoutes);
