@@ -4,41 +4,41 @@ export async function GET() {
   const config = {
     accountAssociation: {
    "header": "eyJmaWQiOjcwODcwNywidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDQwMTJGRmQzQmE5ZTJiRjY3NDIzNTFEQzJDNDE1NWFDRjBEZjVhZWUifQ",
-    "payload": "eyJkb21haW4iOiJ2aWN0b3J5dmF1bHQtbXUudmVyY2VsLmFwcCJ9",
-    "signature": "P/THt74idYQ3h+6TyAansbe5SJN39dJoOXPjNbPUWdlFJKWqBQ4qCyQWYOcZX+4W2FdWPPpI1MMM8hSqbv2Dchs="
+    "payload": "eyJkb21haW4iOiJwZXJwcmFpZC52ZXJjZWwuYXBwIn0",
+    "signature": "OmrQTo7vYzs/1azzx2fGxtBkBIsPV923KRKzivfFYC8WVJKWrpfRbCzfGltd92uU6BDRKi+SG5QQeFD08NAomRs="
     },
     frame: {
       version: '1',
-      name: 'Victory  Vault',
-      iconUrl: 'https://victoryvault-mu.vercel.app/icon.png',
-      splashImageUrl: 'https://victoryvault-mu.vercel.app/splash.png',
+      name: 'Perp Raid',
+      iconUrl: 'https://perpraid.vercel.app/icon.png',
+      splashImageUrl: 'https://perpraid.vercel.app/splash.png',
       splashBackgroundColor: '#FFFFFF',
-      homeUrl: 'https://victoryvault-mu.vercel.app/',
-      imageUrl: 'https://victoryvault-mu.vercel.app/image.png',
-      buttonTitle: 'Start Earning',
+      homeUrl: 'https://perpraid.vercel.app/',
+      imageUrl: 'https://perpraid.vercel.app/image.png',
+      buttonTitle: 'Start Raiding',
       heroImageUrl:
-        'https://victoryvault-mu.vercel.app/image.png',
-      webhookUrl: 'https://victoryvault-mu.vercel.app/api/webhook',
-      subtitle: 'Fair play meets fair pay',
-      description: 'Fair play meets fair pay',
+        'https://perpraid.vercel.app/image.png',
+      webhookUrl: 'https://perpraid.vercel.app/api/webhook',
+      subtitle: 'Enter fast. Exit rich.',
+      description: 'The prime standard for trading PERPS',
       "screenshotUrls": [
-      "https://victoryvault-mu.vercel.app/IMG_1.jpg",
-      "https://victoryvault-mu.vercel.app/IMG_2.jpg",
-      "https://victoryvault-mu.vercel.app/IMG_3.jpg"
+      "https://perpraid.vercel.app/IMG_1.jpg",
+      "https://perpraid.vercel.app/IMG_2.jpg",
+      "https://perpraid.vercel.app/IMG_3.jpg"
     ],
       primaryCategory: 'finance',
      tags: [
-      "prediction",
-      "earning",
-      "claim",
+      "trading",
+      "perps",
+      "fast",
       "earn"
     ],
-      tagline: 'Fair play meets fair pay',
-      ogTitle: 'Victory  Vault',
-        ogDescription: 'Fair play meets fair pay',
+      tagline: 'Enter fast. Exit rich.',
+      ogTitle: 'Perp Raid',
+        ogDescription: 'The prime standard for trading PERPS.',
       ogImageUrl:
-        'https://victoryvault-mu.vercel.app/og-image.png',
-      castShareUrl: 'https://victoryvault-mu.vercel.app/',
+        'https://perpraid.vercel.app/og-image.png',
+      castShareUrl: 'https://perpraid.vercel.app/',
     },
    baseBuilder: {
     "allowedAddresses": ["0xEdf7eA4b9e224d024D421e97736344FfBe00F8e2"]
