@@ -9,6 +9,9 @@ import { HistoryPage } from "@/components/pages/history-page"
 import { BottomNav } from "@/components/navigation/bottom-nav"
 import { Header } from "@/components/navigation/header"
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"portfolio" | "markets" | "positions" | "history">("portfolio")
 
@@ -27,8 +30,6 @@ export default function Home() {
         setActiveTab("positions")
         break
       case "wallet":
-        // For now, navigate to portfolio for wallet
-        // You can create a dedicated wallet page later if needed
         setActiveTab("portfolio")
         break
     }

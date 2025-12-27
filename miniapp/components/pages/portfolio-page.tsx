@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { BalanceCard } from "@/components/cards/balance-card"
 import { RiskMetricsCard } from "@/components/cards/risk-metrics-card"
 import { PortfolioAllocation } from "@/components/portfolio/portfolio-allocation"
