@@ -12,6 +12,7 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
+import { useWallet } from "@/hooks/use-wallet"
 
 interface HeaderProps {
   onMenuClick?: (item: "home" | "positions" | "wallet") => void
@@ -19,6 +20,7 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const { address, isConnected } = useWallet()
 
   const menuItems = [
     { id: "home" as const, label: "Home", icon: Home },
@@ -29,6 +31,11 @@ export function Header({ onMenuClick }: HeaderProps) {
   const handleMenuClick = (item: "home" | "positions" | "wallet") => {
     setIsOpen(false)
     onMenuClick?.(item)
+  }
+
+  const formatAddress = (addr: string | null) => {
+    if (!addr) return null
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`
   }
 
   return (
@@ -65,7 +72,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           </DrawerContent>
         </Drawer>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1">
           <Image
             src="/logo.png"
             alt="PERP Raid Logo"
@@ -76,6 +83,15 @@ export function Header({ onMenuClick }: HeaderProps) {
           />
           <span className="text-xl font-semibold">PERP Raid</span>
         </div>
+
+        {isConnected && address && (
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+            <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+              {formatAddress(address)}
+            </span>
+          </div>
+        )}
       </div>
     </header>
   )

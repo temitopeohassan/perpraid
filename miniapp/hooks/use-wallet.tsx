@@ -1,57 +1,55 @@
 "use client"
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useEffect, createContext, useContext, ReactNode } from 'react';
+import { useAccount, useConnect } from 'wagmi';
 import { apiClient } from '@/lib/api';
 
 interface WalletContextType {
   address: string | null;
-  setAddress: (address: string) => void;
   isConnected: boolean;
-  connect: (address: string) => void;
+  connect: () => void;
   disconnect: () => void;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const [address, setAddressState] = useState<string | null>(null);
+  const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
 
+  // Auto-connect on mount if not already connected
   useEffect(() => {
-    // Load wallet address from localStorage on mount
-    if (typeof window !== 'undefined') {
-      const savedAddress = localStorage.getItem('wallet_address');
-      if (savedAddress) {
-        setAddressState(savedAddress);
-        apiClient.setWalletAddress(savedAddress);
-      }
+    if (!isConnected && connectors.length > 0) {
+      connect({ connector: connectors[0] });
     }
-  }, []);
+  }, [isConnected, connect, connectors]);
 
-  const setAddress = (newAddress: string) => {
-    setAddressState(newAddress);
-    apiClient.setWalletAddress(newAddress);
+  // Update API client when address changes
+  useEffect(() => {
+    if (address) {
+      apiClient.setWalletAddress(address);
+    } else {
+      apiClient.setWalletAddress('');
+    }
+  }, [address]);
+
+  const handleConnect = () => {
+    if (connectors.length > 0) {
+      connect({ connector: connectors[0] });
+    }
   };
 
-  const connect = (newAddress: string) => {
-    setAddress(newAddress);
-  };
-
-  const disconnect = () => {
-    setAddressState(null);
+  const handleDisconnect = () => {
     apiClient.setWalletAddress('');
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('wallet_address');
-    }
   };
 
   return (
     <WalletContext.Provider
       value={{
-        address,
-        setAddress,
-        isConnected: !!address,
-        connect,
-        disconnect,
+        address: address || null,
+        isConnected,
+        connect: handleConnect,
+        disconnect: handleDisconnect,
       }}
     >
       {children}

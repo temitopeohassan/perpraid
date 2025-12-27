@@ -1,15 +1,26 @@
 "use client"
 
-export function BalanceCard() {
-  const totalBalance = 50000
-  const availableBalance = 35000
-  const marginUsed = 15000
-  const marginUtilization = (marginUsed / totalBalance) * 100
+interface BalanceCardProps {
+  balance?: {
+    total_balance: number;
+    available_balance: number;
+    margin_used: number;
+    currency: string;
+  } | null;
+}
+
+export function BalanceCard({ balance }: BalanceCardProps) {
+  const totalBalance = balance?.total_balance || 0
+  const availableBalance = balance?.available_balance || 0
+  const marginUsed = balance?.margin_used || 0
+  const marginUtilization = totalBalance > 0 ? (marginUsed / totalBalance) * 100 : 0
 
   return (
     <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg p-6 text-white shadow-lg">
       <p className="text-blue-100 text-sm font-medium">Total Balance</p>
-      <h2 className="text-4xl font-bold mt-2">${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}</h2>
+      <h2 className="text-4xl font-bold mt-2">
+        ${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+      </h2>
 
       <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-blue-500">
         <div>
@@ -32,7 +43,10 @@ export function BalanceCard() {
           <p className="text-sm font-semibold">{marginUtilization.toFixed(1)}%</p>
         </div>
         <div className="w-full bg-blue-500 rounded-full h-1.5">
-          <div className="bg-red-400 h-1.5 rounded-full transition-all" style={{ width: `${marginUtilization}%` }} />
+          <div 
+            className="bg-red-400 h-1.5 rounded-full transition-all" 
+            style={{ width: `${Math.min(marginUtilization, 100)}%` }} 
+          />
         </div>
       </div>
     </div>

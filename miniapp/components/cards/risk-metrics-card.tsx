@@ -1,9 +1,17 @@
 "use client"
 
-export function RiskMetricsCard() {
-  const marginRatio = 0.55
-  const liquidationRisk = "low"
-  const warnings = ["Monitor BTC position as it approaches liquidation price"]
+interface RiskMetricsCardProps {
+  riskMetrics?: {
+    total_margin_ratio: number;
+    liquidation_risk: 'low' | 'medium' | 'high';
+    warnings: string[];
+  } | null;
+}
+
+export function RiskMetricsCard({ riskMetrics }: RiskMetricsCardProps) {
+  const marginRatio = riskMetrics?.total_margin_ratio || 0
+  const liquidationRisk = riskMetrics?.liquidation_risk || 'low'
+  const warnings = riskMetrics?.warnings || []
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
