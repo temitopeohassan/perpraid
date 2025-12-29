@@ -78,26 +78,26 @@ export function PortfolioPage() {
       ) : (
         <>
           <BalanceCard balance={balance} />
-          <PerformanceChart />
+      <PerformanceChart />
           <RiskMetricsCard riskMetrics={riskMetrics} />
-          <PortfolioAllocation />
-          <div className="bg-white rounded-lg border border-red-100 p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-2">
+      <PortfolioAllocation />
+      <div className="bg-white rounded-lg border border-red-100 p-4">
+        <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+        <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={handleDeposit}
                 className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition"
               >
-                Deposit
-              </button>
+            Deposit
+          </button>
               <button
                 onClick={handleWithdraw}
                 className="bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium transition"
               >
-                Withdraw
-              </button>
-            </div>
-          </div>
+            Withdraw
+          </button>
+        </div>
+      </div>
         </>
       )}
     </div>

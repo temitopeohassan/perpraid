@@ -87,6 +87,47 @@ router.get('/history', async (req, res) => {
   }
 });
 
+// Get funding history
+router.get('/funding-history', async (req, res) => {
+  try {
+    const { market } = req.query;
+    const limit = parseInt(req.query.limit) || 50;
+    const indexer = dydxClient.getIndexerClient();
+    
+    if (market) {
+      // Get funding history for specific market
+      const funding = await indexer.markets.getPerpetualMarketFunding(market, { limit });
+      res.json(funding.fundingPayments || []);
+    } else {
+      // Get funding history across all markets
+      const subaccount = await indexer.account.getSubaccount(req.walletAddress, 0);
+      const positions = await indexer.account.getSubaccountPerpetualPositions(req.walletAddress, 0);
+      
+      // Aggregate funding from all positions
+      const allFunding = [];
+      for (const position of positions.positions || []) {
+        try {
+          const funding = await indexer.markets.getPerpetualMarketFunding(position.market, { limit: 10 });
+          if (funding.fundingPayments) {
+            allFunding.push(...funding.fundingPayments.map(fp => ({
+              ...fp,
+              market: position.market
+            })));
+          }
+        } catch (err) {
+          console.error(`Error fetching funding for ${position.market}:`, err);
+        }
+      }
+      
+      // Sort by timestamp and limit
+      allFunding.sort((a, b) => new Date(b.effectiveAt) - new Date(a.effectiveAt));
+      res.json(allFunding.slice(0, limit));
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch funding history', message: error.message });
+  }
+});
+
 // Get risk metrics
 router.get('/risk', async (req, res) => {
   try {

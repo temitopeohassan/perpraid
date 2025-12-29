@@ -302,6 +302,62 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  async getFundingHistory(market?: string, limit = 50) {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    const params = new URLSearchParams({ limit: limit.toString() });
+    if (market) {
+      params.append('market', market);
+    }
+    return this.request<Array<{
+      market?: string;
+      rate: number;
+      price: number;
+      effectiveAt: string;
+      fundingIndex: string;
+    }>>(`/api/user/funding-history?${params.toString()}`);
+  }
+
+  async updateLeverage(market: string, leverage: number) {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    return this.request<{
+      success: boolean;
+      market: string;
+      leverage: number;
+      message: string;
+    }>('/api/trading/leverage', {
+      method: 'PUT',
+      body: JSON.stringify({ market, leverage }),
+    });
+  }
+
+  async setMarginMode(market: string, margin_mode: 'cross' | 'isolated') {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    return this.request<{
+      success: boolean;
+      market: string;
+      margin_mode: string;
+      message: string;
+    }>('/api/trading/margin-mode', {
+      method: 'PUT',
+      body: JSON.stringify({ market, margin_mode }),
+    });
+  }
+
+  async getFundingHistoryForMarket(market: string, limit = 50) {
+    return this.request<Array<{
+      rate: number;
+      price: number;
+      effectiveAt: string;
+      fundingIndex: string;
+    }>>(`/api/markets/${market}/funding?limit=${limit}`);
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

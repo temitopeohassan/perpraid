@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { PositionSettingsModal } from "./position-settings-modal"
+import { Settings } from "lucide-react"
 
 interface PositionDetailsModalProps {
   position: {
@@ -16,6 +18,7 @@ interface PositionDetailsModalProps {
     margin_ratio: number
     opened_at: Date
     funding_paid: number
+    margin_mode: 'cross' | 'isolated'
   }
   onClose: () => void
 }
@@ -24,6 +27,7 @@ export function PositionDetailsModal({ position, onClose }: PositionDetailsModal
   const [action, setAction] = useState<"adjust" | "close" | null>(null)
   const [newLeverage, setNewLeverage] = useState(position.leverage)
   const [closeSize, setCloseSize] = useState("")
+  const [showSettings, setShowSettings] = useState(false)
 
   const isLong = position.side === "LONG"
   const isPnLPositive = position.unrealized_pnl >= 0
@@ -167,6 +171,27 @@ export function PositionDetailsModal({ position, onClose }: PositionDetailsModal
               Close Position
             </button>
           </div>
+        )}
+
+        <button
+          onClick={() => setShowSettings(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
+        >
+          <Settings className="h-4 w-4" />
+          <span>Settings</span>
+        </button>
+
+        {showSettings && (
+          <PositionSettingsModal
+            market={position.market}
+            currentLeverage={position.leverage}
+            currentMarginMode={position.margin_mode as 'cross' | 'isolated'}
+            onClose={() => setShowSettings(false)}
+            onUpdate={() => {
+              // Reload position data
+              setShowSettings(false)
+            }}
+          />
         )}
       </div>
     </div>
