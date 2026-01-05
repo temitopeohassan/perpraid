@@ -101,14 +101,14 @@ export function HistoryPage() {
         ) : trades.length > 0 ? (
           <div className="space-y-3">
             {trades.map((trade) => (
-              <TradeHistoryCard key={trade.trade_id} trade={trade} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <TradeHistoryCard key={trade.trade_id} trade={trade} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <p className="text-gray-600 mb-3">No trade history</p>
             <p className="text-sm text-gray-500">Your completed trades will appear here</p>
-          </div>
+        </div>
         )
       ) : (
         <FundingHistory />

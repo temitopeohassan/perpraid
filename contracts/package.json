@@ -1,13 +1,26 @@
 {
-  "name": "contracts",
+  "name": "perpraid-contracts",
   "version": "1.0.0",
+  "description": "Smart contracts for PerpRaid perpetual futures trading platform",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:base": "hardhat run scripts/deploy.ts --network base",
+    "deploy:base-sepolia": "hardhat run scripts/deploy.ts --network baseSepolia",
+    "verify": "hardhat verify --network base"
   },
-  "keywords": [],
+  "keywords": ["perpetuals", "trading", "base", "dydx"],
   "author": "",
-  "license": "ISC",
-  "description": "",
-  "type": "module"
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@types/node": "^22.8.5",
+    "hardhat": "^3.0.16",
+    "typescript": "~5.8.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0"
+  }
 }
