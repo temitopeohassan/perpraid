@@ -37,10 +37,31 @@ async function main() {
   const feeManagerAddress = await feeManager.getAddress();
   console.log("FeeManager deployed to:", feeManagerAddress);
 
+  // Deploy SkipBridge
+  console.log("\nDeploying SkipBridge...");
+  const SkipBridge = await ethers.getContractFactory("SkipBridge");
+  const MIN_BRIDGE_AMOUNT = ethers.parseUnits("1", 6); // 1 USDC minimum
+  const MAX_BRIDGE_AMOUNT = ethers.parseUnits("100000", 6); // 100k USDC maximum
+  const BRIDGE_FEE_BPS = 50; // 0.5% bridge fee (50 basis points)
+  const RELAYER_ADDRESS = process.env.RELAYER_ADDRESS || deployer.address;
+  
+  const skipBridge = await SkipBridge.deploy(
+    USDC_ADDRESS,
+    deployer.address,
+    RELAYER_ADDRESS,
+    MIN_BRIDGE_AMOUNT,
+    MAX_BRIDGE_AMOUNT,
+    BRIDGE_FEE_BPS
+  );
+  await skipBridge.waitForDeployment();
+  const skipBridgeAddress = await skipBridge.getAddress();
+  console.log("SkipBridge deployed to:", skipBridgeAddress);
+
   console.log("\n=== Deployment Summary ===");
   console.log("PerpRaidVault:", vaultAddress);
   console.log("PositionRegistry:", registryAddress);
   console.log("FeeManager:", feeManagerAddress);
+  console.log("SkipBridge:", skipBridgeAddress);
   console.log("\nSave these addresses for your backend configuration!");
 
   // Verify contracts if on a testnet/mainnet
@@ -74,6 +95,22 @@ async function main() {
       });
     } catch (error) {
       console.log("FeeManager verification failed:", error);
+    }
+    
+    try {
+      await hre.run("verify:verify", {
+        address: skipBridgeAddress,
+        constructorArguments: [
+          USDC_ADDRESS,
+          deployer.address,
+          RELAYER_ADDRESS,
+          MIN_BRIDGE_AMOUNT,
+          MAX_BRIDGE_AMOUNT,
+          BRIDGE_FEE_BPS
+        ],
+      });
+    } catch (error) {
+      console.log("SkipBridge verification failed:", error);
     }
   }
 }

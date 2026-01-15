@@ -8,6 +8,7 @@ import { PositionsPage } from "@/components/pages/positions-page"
 import { HistoryPage } from "@/components/pages/history-page"
 import { BottomNav } from "@/components/navigation/bottom-nav"
 import { Header } from "@/components/navigation/header"
+import { isFarcasterEnvironment } from "@/lib/farcaster-detection"
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -15,10 +16,17 @@ export const dynamic = 'force-dynamic'
 export default function Home() {
   const [activeTab, setActiveTab] = useState<"portfolio" | "markets" | "positions" | "history">("portfolio")
 
-  // Initialize Farcaster Mini App SDK and signal readiness
+  // Initialize Farcaster Mini App SDK and signal readiness only when inside Farcaster
   useEffect(() => {
-    // Signal to Farcaster client that the app is ready to display
-    sdk.actions.ready()
+    if (isFarcasterEnvironment()) {
+      // Signal to Farcaster client that the app is ready to display
+      try {
+        sdk.actions.ready()
+      } catch (error) {
+        // Silently fail if SDK is not available
+        console.debug('Farcaster SDK not available:', error)
+      }
+    }
   }, [])
 
   const handleMenuClick = (item: "home" | "positions" | "wallet") => {

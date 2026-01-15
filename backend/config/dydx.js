@@ -11,35 +11,94 @@ class DYDXClient {
 
   async initialize() {
     try {
+      const networkType = process.env.DYDX_NETWORK || 'testnet';
+      console.log(`Initializing dYdX clients for network: ${networkType}`);
+      
+      // Log network endpoints for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Network config:', {
+          indexer: this.network.indexerConfig?.restEndpoint || 'N/A',
+          validator: this.network.validatorConfig?.restEndpoint || 'N/A',
+          chainId: this.network.chainId || 'N/A'
+        });
+      }
+      
       // Initialize Indexer Client (for reading data) - this is usually more reliable
-      this.indexerClient = new IndexerClient(this.network.indexerConfig);
+      try {
+        this.indexerClient = new IndexerClient(this.network.indexerConfig);
+        console.log('✓ Indexer client initialized');
+      } catch (indexerError) {
+        console.error('✗ Failed to initialize Indexer client:', indexerError.message);
+        throw indexerError;
+      }
       
       // Try to initialize Composite Client (for trading operations)
       // This may fail due to network issues, but we can still use indexer
+      // Note: CompositeClient.connect() fetches chain info from validator endpoints
       try {
-        this.compositeClient = await CompositeClient.connect(this.network);
+        console.log('Attempting to connect Composite client...');
+        this.compositeClient = await Promise.race([
+          CompositeClient.connect(this.network),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Connection timeout after 10 seconds')), 10000)
+          )
+        ]);
+        console.log('✓ Composite client initialized');
       } catch (compositeError) {
-        console.warn('Composite client initialization failed (trading features unavailable):', compositeError.message);
+        const errorMsg = compositeError.message || compositeError.toString();
+        const errorDetails = compositeError.cause ? ` (cause: ${compositeError.cause.message})` : '';
+        console.warn(`⚠ Composite client initialization failed (trading features unavailable): ${errorMsg}${errorDetails}`);
+        console.warn('  Note: This is usually due to network connectivity issues or validator endpoints being unreachable.');
+        console.warn('  The server will continue to run with read-only features via the Indexer client.');
+        if (compositeError.stack && process.env.NODE_ENV === 'development') {
+          console.debug('Composite client error stack:', compositeError.stack);
+        }
       }
       
       // Try to initialize Validator Client (for on-chain operations)
       // This may also fail, but indexer should still work
+      // Note: ValidatorClient.connect() connects to validator RPC endpoints
       try {
-        this.validatorClient = await ValidatorClient.connect(this.network.validatorConfig);
+        console.log('Attempting to connect Validator client...');
+        if (!this.network.validatorConfig) {
+          throw new Error('Validator config not available for this network');
+        }
+        this.validatorClient = await Promise.race([
+          ValidatorClient.connect(this.network.validatorConfig),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Connection timeout after 10 seconds')), 10000)
+          )
+        ]);
+        console.log('✓ Validator client initialized');
       } catch (validatorError) {
-        console.warn('Validator client initialization failed (on-chain features unavailable):', validatorError.message);
+        const errorMsg = validatorError.message || validatorError.toString();
+        const errorDetails = validatorError.cause ? ` (cause: ${validatorError.cause.message})` : '';
+        console.warn(`⚠ Validator client initialization failed (on-chain features unavailable): ${errorMsg}${errorDetails}`);
+        console.warn('  Note: This is usually due to network connectivity issues or validator RPC endpoints being unreachable.');
+        console.warn('  The server will continue to run with read-only features via the Indexer client.');
+        if (validatorError.stack && process.env.NODE_ENV === 'development') {
+          console.debug('Validator client error stack:', validatorError.stack);
+        }
       }
       
       // Mark as initialized if at least indexer is working
       if (this.indexerClient) {
         this.initialized = true;
-        console.log('dYdX clients initialized successfully');
+        const availableClients = [
+          this.indexerClient && 'Indexer',
+          this.compositeClient && 'Composite',
+          this.validatorClient && 'Validator'
+        ].filter(Boolean).join(', ');
+        console.log(`✓ dYdX clients initialized successfully (${availableClients})`);
         return true;
       } else {
         throw new Error('Failed to initialize any dYdX clients');
       }
     } catch (error) {
-      console.error('Failed to initialize dYdX clients:', error);
+      console.error('✗ Failed to initialize dYdX clients:', error.message);
+      if (error.stack && process.env.NODE_ENV === 'development') {
+        console.error('Error stack:', error.stack);
+      }
       throw error;
     }
   }

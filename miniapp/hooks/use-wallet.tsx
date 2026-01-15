@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, createContext, useContext, ReactNode } from 'react';
-import { useAccount, useConnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { apiClient } from '@/lib/api';
+import { isFarcasterEnvironment } from '@/lib/farcaster-detection';
 
 interface WalletContextType {
   address: string | null;
@@ -16,13 +17,22 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 export function WalletProvider({ children }: { children: ReactNode }) {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
+  const isFarcaster = isFarcasterEnvironment();
 
-  // Auto-connect on mount if not already connected
+  // Auto-connect on mount only when inside Farcaster
+  // Outside Farcaster, users should connect via RainbowKit's ConnectButton
   useEffect(() => {
-    if (!isConnected && connectors.length > 0) {
-      connect({ connector: connectors[0] });
+    if (isFarcaster && !isConnected && connectors.length > 0) {
+      // Try to connect with Farcaster connector first
+      const farcasterConnector = connectors.find(c => c.id === 'farcaster-miniapp');
+      if (farcasterConnector) {
+        connect({ connector: farcasterConnector });
+      } else if (connectors[0]) {
+        connect({ connector: connectors[0] });
+      }
     }
-  }, [isConnected, connect, connectors]);
+  }, [isFarcaster, isConnected, connect, connectors]);
 
   // Update API client when address changes
   useEffect(() => {
@@ -40,6 +50,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   };
 
   const handleDisconnect = () => {
+    disconnect();
     apiClient.setWalletAddress('');
   };
 

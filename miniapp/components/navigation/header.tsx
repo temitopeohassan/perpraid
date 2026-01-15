@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Menu, Home, TrendingUp, Wallet } from "lucide-react"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 import {
   Drawer,
   DrawerContent,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
 import { useWallet } from "@/hooks/use-wallet"
+import { isFarcasterEnvironment } from "@/lib/farcaster-detection"
 
 interface HeaderProps {
   onMenuClick?: (item: "home" | "positions" | "wallet") => void
@@ -20,7 +22,15 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isFarcaster, setIsFarcaster] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { address, isConnected } = useWallet()
+
+  // Check environment only on client side to avoid hydration issues
+  useEffect(() => {
+    setMounted(true)
+    setIsFarcaster(isFarcasterEnvironment())
+  }, [])
 
   const menuItems = [
     { id: "home" as const, label: "Home", icon: Home },
@@ -84,13 +94,23 @@ export function Header({ onMenuClick }: HeaderProps) {
           <span className="text-xl font-semibold">PERP Raid</span>
         </div>
 
-        {isConnected && address && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-            <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-              {formatAddress(address)}
-            </span>
-          </div>
+        {/* Show RainbowKit ConnectButton when outside Farcaster */}
+        {/* Only render after mount to avoid hydration issues */}
+        {mounted ? (
+          !isFarcaster ? (
+            <ConnectButton />
+          ) : isConnected && address ? (
+            /* Show wallet address when inside Farcaster and connected */
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+              <Wallet className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                {formatAddress(address)}
+              </span>
+            </div>
+          ) : null
+        ) : (
+          /* Show placeholder during SSR to avoid hydration mismatch */
+          <div className="h-10 w-10" />
         )}
       </div>
     </header>

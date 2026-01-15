@@ -358,6 +358,53 @@ class ApiClient {
       fundingIndex: string;
     }>>(`/api/markets/${market}/funding?limit=${limit}`);
   }
+
+  async getBridgeHistory() {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    return this.request<Array<{
+      bridge_id: string;
+      tx_hash: string;
+      tracking_id: string;
+      source_chain: string;
+      dest_chain: string;
+      amount: number;
+      status: 'pending' | 'completed' | 'failed';
+      timestamp: string;
+    }>>('/api/bridge/history');
+  }
+
+  async trackBridge(trackingId: string) {
+    return this.request<{
+      tracking_id: string;
+      status: string;
+      tx_hash?: string;
+      completed: boolean;
+      error?: string;
+    }>(`/api/bridge/track/${trackingId}`);
+  }
+
+  async saveBridgeTransaction(data: {
+    tx_hash: string;
+    tracking_id: string;
+    source_chain: string;
+    dest_chain: string;
+    amount: number;
+    dydx_address: string;
+  }) {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    return this.request<{
+      success: boolean;
+      bridge_id: string;
+      message: string;
+    }>('/api/bridge/save', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

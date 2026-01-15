@@ -30,6 +30,18 @@ Manages trading fees and fee distribution.
 - Fee collection and distribution
 - Fee tracking per trader
 
+### SkipBridge
+Smart contract for bridging USDC from Base to dYdX using Skip Go API.
+
+**Features:**
+- Initiate bridge requests with amount and dYdX address
+- Track bridge status (Pending, Processing, Completed, Failed)
+- Automated fee collection
+- Relayer-based bridge execution
+- Refund mechanism for failed bridges
+
+See [BRIDGE_INTEGRATION.md](./BRIDGE_INTEGRATION.md) for detailed integration guide.
+
 ## Setup
 
 1. Install dependencies:
