@@ -52,6 +52,7 @@ const marketRoutes = require('./routes/markets');
 const userRoutes = require('./routes/user');
 const tradingRoutes = require('./routes/trading');
 const riskRoutes = require('./routes/risk');
+const stakingRoutes = require('./routes/staking');
 
 // Routes
 
@@ -64,6 +65,7 @@ app.use('/api/markets', marketRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/trading', tradingRoutes);
 app.use('/api/risk', riskRoutes);
+app.use('/api/staking', stakingRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

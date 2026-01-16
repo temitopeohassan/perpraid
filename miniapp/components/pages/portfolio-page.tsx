@@ -2,13 +2,18 @@
 
 import { useState, useEffect } from "react"
 import { BalanceCard } from "@/components/cards/balance-card"
+import { StakingCard } from "@/components/cards/staking-card"
 import { RiskMetricsCard } from "@/components/cards/risk-metrics-card"
 import { PortfolioAllocation } from "@/components/portfolio/portfolio-allocation"
 import { PerformanceChart } from "@/components/portfolio/performance-chart"
 import { apiClient } from "@/lib/api"
 import { useWallet } from "@/hooks/use-wallet"
 
-export function PortfolioPage() {
+interface PortfolioPageProps {
+  onNavigateToStaking?: () => void
+}
+
+export function PortfolioPage({ onNavigateToStaking }: PortfolioPageProps) {
   const { address, isConnected } = useWallet()
   const [balance, setBalance] = useState<any>(null)
   const [riskMetrics, setRiskMetrics] = useState<any>(null)
@@ -78,6 +83,11 @@ export function PortfolioPage() {
       ) : (
         <>
           <BalanceCard balance={balance} />
+          <StakingCard 
+            onStakeClick={onNavigateToStaking}
+            onUnstakeClick={onNavigateToStaking}
+            onBridgeAllowanceClick={onNavigateToStaking}
+          />
       <PerformanceChart />
           <RiskMetricsCard riskMetrics={riskMetrics} />
       <PortfolioAllocation />

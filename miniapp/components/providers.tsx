@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { wagmiConfig } from '@/lib/wagmi-config'
 import { WalletProvider } from '@/hooks/use-wallet'
+import { DydxWalletProvider } from '@/hooks/use-dydx-wallet'
 import { isFarcasterEnvironment } from '@/lib/farcaster-detection'
 import { useState, useEffect } from 'react'
 
@@ -29,7 +30,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider>
             <WalletProvider>
-              {children}
+              <DydxWalletProvider>
+                {children}
+              </DydxWalletProvider>
             </WalletProvider>
           </RainbowKitProvider>
         </QueryClientProvider>
@@ -45,12 +48,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
         {!isFarcaster ? (
           <RainbowKitProvider>
             <WalletProvider>
-              {children}
+              <DydxWalletProvider>
+                {children}
+              </DydxWalletProvider>
             </WalletProvider>
           </RainbowKitProvider>
         ) : (
           <WalletProvider>
-            {children}
+            <DydxWalletProvider>
+              {children}
+            </DydxWalletProvider>
           </WalletProvider>
         )}
       </QueryClientProvider>

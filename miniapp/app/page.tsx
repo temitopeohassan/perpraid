@@ -6,6 +6,7 @@ import { PortfolioPage } from "@/components/pages/portfolio-page"
 import { MarketsPage } from "@/components/pages/markets-page"
 import { PositionsPage } from "@/components/pages/positions-page"
 import { HistoryPage } from "@/components/pages/history-page"
+import { StakingPage } from "@/components/pages/staking-page"
 import { BottomNav } from "@/components/navigation/bottom-nav"
 import { Header } from "@/components/navigation/header"
 import { isFarcasterEnvironment } from "@/lib/farcaster-detection"
@@ -14,7 +15,7 @@ import { isFarcasterEnvironment } from "@/lib/farcaster-detection"
 export const dynamic = 'force-dynamic'
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"portfolio" | "markets" | "positions" | "history">("portfolio")
+  const [activeTab, setActiveTab] = useState<"portfolio" | "markets" | "positions" | "history" | "staking">("portfolio")
 
   // Initialize Farcaster Mini App SDK and signal readiness only when inside Farcaster
   useEffect(() => {
@@ -46,15 +47,17 @@ export default function Home() {
   const renderPage = () => {
     switch (activeTab) {
       case "portfolio":
-        return <PortfolioPage />
+        return <PortfolioPage onNavigateToStaking={() => setActiveTab("staking")} />
       case "markets":
         return <MarketsPage />
       case "positions":
         return <PositionsPage />
+      case "staking":
+        return <StakingPage />
       case "history":
         return <HistoryPage />
       default:
-        return <PortfolioPage />
+        return <PortfolioPage onNavigateToStaking={() => setActiveTab("staking")} />
     }
   }
 

@@ -57,12 +57,46 @@ async function main() {
   const skipBridgeAddress = await skipBridge.getAddress();
   console.log("SkipBridge deployed to:", skipBridgeAddress);
 
+  // Deploy StakingAllowanceManager
+  console.log("\nDeploying StakingAllowanceManager...");
+  const StakingAllowanceManager = await ethers.getContractFactory("StakingAllowanceManager");
+  
+  // Uniswap V3 contract addresses on Base mainnet
+  // These are the official deployed contracts - DO NOT redeploy
+  const UNISWAP_V3_STAKER = process.env.UNISWAP_V3_STAKER || "0x42bE4D6527829FeFA1493e1fb9F3676d2425C3C1"; // Base mainnet
+  const NFT_POSITION_MANAGER = process.env.NFT_POSITION_MANAGER || "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1"; // Base mainnet
+  const REWARD_TOKEN = process.env.REWARD_TOKEN || USDC_ADDRESS; // Default to USDC, can be changed
+  
+  const stakingManager = await StakingAllowanceManager.deploy(
+    UNISWAP_V3_STAKER,
+    NFT_POSITION_MANAGER,
+    REWARD_TOKEN,
+    USDC_ADDRESS
+  );
+  await stakingManager.waitForDeployment();
+  const stakingManagerAddress = await stakingManager.getAddress();
+  console.log("StakingAllowanceManager deployed to:", stakingManagerAddress);
+  console.log("  - Uniswap V3 Staker:", UNISWAP_V3_STAKER);
+  console.log("  - NFT Position Manager:", NFT_POSITION_MANAGER);
+  console.log("  - Reward Token:", REWARD_TOKEN);
+  console.log("  - USDC:", USDC_ADDRESS);
+
+  // Store addresses for verification
+  const stakingConstructorArgs = {
+    uniswapV3Staker: UNISWAP_V3_STAKER,
+    nftPositionManager: NFT_POSITION_MANAGER,
+    rewardToken: REWARD_TOKEN,
+    usdc: USDC_ADDRESS
+  };
+
   console.log("\n=== Deployment Summary ===");
   console.log("PerpRaidVault:", vaultAddress);
   console.log("PositionRegistry:", registryAddress);
   console.log("FeeManager:", feeManagerAddress);
   console.log("SkipBridge:", skipBridgeAddress);
+  console.log("StakingAllowanceManager:", stakingManagerAddress);
   console.log("\nSave these addresses for your backend configuration!");
+  console.log("\n⚠️  IMPORTANT: Set STAKING_CONTRACT_ADDRESS=" + stakingManagerAddress + " in your backend .env file");
 
   // Verify contracts if on a testnet/mainnet
   if (process.env.VERIFY === "true") {
@@ -111,6 +145,20 @@ async function main() {
       });
     } catch (error) {
       console.log("SkipBridge verification failed:", error);
+    }
+    
+    try {
+      await hre.run("verify:verify", {
+        address: stakingManagerAddress,
+        constructorArguments: [
+          stakingConstructorArgs.uniswapV3Staker,
+          stakingConstructorArgs.nftPositionManager,
+          stakingConstructorArgs.rewardToken,
+          stakingConstructorArgs.usdc
+        ],
+      });
+    } catch (error) {
+      console.log("StakingAllowanceManager verification failed:", error);
     }
   }
 }

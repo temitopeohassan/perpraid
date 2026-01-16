@@ -391,7 +391,8 @@ class ApiClient {
     source_chain: string;
     dest_chain: string;
     amount: number;
-    dydx_address: string;
+    dydx_address?: string; // For Base → dYdX bridges
+    base_address?: string; // For dYdX → Base bridges
   }) {
     if (!this.walletAddress) {
       throw new Error('Wallet address not set');
@@ -404,6 +405,67 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  }
+
+  // Staking API methods
+  async getStakingData() {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    return this.request<{
+      trading_allowance: number;
+      total_accumulated: number;
+      active_stakes: number;
+      total_staked_value: number;
+      weekly_yield: number;
+      next_distribution: string;
+    }>('/api/staking/data');
+  }
+
+  async getStakingHistory(limit = 50) {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    return this.request<Array<{
+      stake_id: string;
+      token_id: string;
+      staked_at: string;
+      unstaked_at?: string;
+      total_yield: number;
+      status: 'active' | 'unstaked';
+    }>>(`/api/staking/history?limit=${limit}`);
+  }
+
+  async saveStakingTransaction(data: {
+    tx_hash: string;
+    token_id: string;
+    action: 'stake' | 'unstake' | 'claim';
+    amount?: number;
+  }) {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    return this.request<{
+      success: boolean;
+      stake_id: string;
+      message: string;
+    }>('/api/staking/save', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTradingAllowanceHistory(limit = 50) {
+    if (!this.walletAddress) {
+      throw new Error('Wallet address not set');
+    }
+    return this.request<Array<{
+      distribution_id: string;
+      amount: number;
+      distributed_at: string;
+      bridged: boolean;
+      bridge_tx_hash?: string;
+    }>>(`/api/staking/allowance-history?limit=${limit}`);
   }
 }
 

@@ -1,6 +1,7 @@
 import { createPublicClient, createWalletClient, custom, http, Address, parseUnits, formatUnits } from 'viem'
 import { base } from 'viem/chains'
 import axios from 'axios'
+import { DydxToBaseBridge } from './dydx-to-base-bridge'
 
 // Base Mainnet Configuration
 const BASE_CHAIN_ID = '8453'
@@ -98,6 +99,44 @@ interface SkipMsgsResponse {
 interface BridgeTransaction {
   txHash: string
   trackingId: string
+}
+
+/**
+ * Bidirectional Bridge Class
+ * Supports both Base → dYdX and dYdX → Base bridging
+ */
+export class BidirectionalBridge {
+  private baseToDydx: BaseToDydxBridge
+  private dydxToBase: DydxToBaseBridge
+
+  constructor(provider?: any, dydxWallet?: any) {
+    this.baseToDydx = new BaseToDydxBridge(provider)
+    this.dydxToBase = new DydxToBaseBridge(dydxWallet)
+  }
+
+  setBaseProvider(provider: any) {
+    this.baseToDydx.setProvider(provider)
+  }
+
+  setDydxWallet(wallet: any) {
+    this.dydxToBase.setDydxWallet(wallet)
+  }
+
+  async bridgeBaseToDydx(amount: string, dydxAddress: string) {
+    return this.baseToDydx.bridge(amount, dydxAddress)
+  }
+
+  async bridgeDydxToBase(amount: string, baseAddress: string) {
+    return this.dydxToBase.bridge(amount, baseAddress)
+  }
+
+  async getRouteBaseToDydx(amount: string, dydxAddress: string) {
+    return this.baseToDydx.getRoute(amount, dydxAddress)
+  }
+
+  async getRouteDydxToBase(amount: string, baseAddress: string) {
+    return this.dydxToBase.getRoute(amount, baseAddress)
+  }
 }
 
 export class BaseToDydxBridge {

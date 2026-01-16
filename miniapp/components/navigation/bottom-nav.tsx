@@ -1,8 +1,8 @@
 "use client"
 
 interface BottomNavProps {
-  activeTab: "portfolio" | "markets" | "positions" | "history"
-  onTabChange: (tab: "portfolio" | "markets" | "positions" | "history") => void
+  activeTab: "portfolio" | "markets" | "positions" | "history" | "staking"
+  onTabChange: (tab: "portfolio" | "markets" | "positions" | "history" | "staking") => void
 }
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
@@ -10,6 +10,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
     { id: "portfolio" as const, label: "Portfolio", icon: "💼" },
     { id: "markets" as const, label: "Markets", icon: "📊" },
     { id: "positions" as const, label: "Positions", icon: "📈" },
+    { id: "staking" as const, label: "Staking", icon: "💰" },
     { id: "history" as const, label: "History", icon: "📋" },
   ]
 

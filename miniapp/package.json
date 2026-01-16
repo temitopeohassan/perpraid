@@ -9,8 +9,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@cosmjs/encoding": "^0.32.4",
+    "@cosmjs/proto-signing": "^0.32.4",
+    "@cosmjs/stargate": "^0.32.4",
     "@farcaster/miniapp-sdk": "^0.2.1",
     "@hookform/resolvers": "^3.10.0",
+    "@keplr-wallet/types": "^0.12.312",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",

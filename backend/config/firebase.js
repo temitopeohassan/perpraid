@@ -225,6 +225,101 @@ class FirebaseClient {
         updated_at: admin.firestore.FieldValue.serverTimestamp()
       });
   }
+
+  // ==================== STAKING COLLECTION ====================
+
+  /**
+   * Save staking data for a user
+   * @param {string} walletAddress - User's wallet address
+   * @param {Object} stakingData - Staking data object
+   */
+  async saveStakingData(walletAddress, stakingData) {
+    const db = this.getFirestore();
+    const docRef = db.collection('staking_data').doc(walletAddress.toLowerCase());
+    await docRef.set({
+      wallet_address: walletAddress.toLowerCase(),
+      ...stakingData,
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    return docRef.id;
+  }
+
+  /**
+   * Get staking data for a user
+   * @param {string} walletAddress - User's wallet address
+   * @returns {Promise<Object|null>} Staking data or null
+   */
+  async getStakingData(walletAddress) {
+    const db = this.getFirestore();
+    const doc = await db.collection('staking_data').doc(walletAddress.toLowerCase()).get();
+    return doc.exists ? doc.data() : null;
+  }
+
+  /**
+   * Save a staking transaction
+   * @param {string} walletAddress - User's wallet address
+   * @param {string} stakeId - Unique stake ID
+   * @param {Object} stakeData - Staking transaction data
+   */
+  async saveStakingTransaction(walletAddress, stakeId, stakeData) {
+    const db = this.getFirestore();
+    const docRef = db.collection('staking_transactions').doc(stakeId);
+    await docRef.set({
+      wallet_address: walletAddress.toLowerCase(),
+      ...stakeData,
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    });
+    return docRef.id;
+  }
+
+  /**
+   * Get staking transaction history for a user
+   * @param {string} walletAddress - User's wallet address
+   * @param {number} limit - Maximum number of records to return
+   * @returns {Promise<Array>} Array of staking transactions
+   */
+  async getStakingHistory(walletAddress, limit = 50) {
+    const db = this.getFirestore();
+    const snapshot = await db.collection('staking_transactions')
+      .where('wallet_address', '==', walletAddress.toLowerCase())
+      .orderBy('created_at', 'desc')
+      .limit(limit)
+      .get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+
+  /**
+   * Save trading allowance distribution record
+   * @param {string} walletAddress - User's wallet address
+   * @param {string} distributionId - Unique distribution ID
+   * @param {Object} distributionData - Distribution data
+   */
+  async saveTradingAllowanceDistribution(walletAddress, distributionId, distributionData) {
+    const db = this.getFirestore();
+    const docRef = db.collection('trading_allowance_distributions').doc(distributionId);
+    await docRef.set({
+      wallet_address: walletAddress.toLowerCase(),
+      ...distributionData,
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    });
+    return docRef.id;
+  }
+
+  /**
+   * Get trading allowance distribution history
+   * @param {string} walletAddress - User's wallet address
+   * @param {number} limit - Maximum number of records to return
+   * @returns {Promise<Array>} Array of distribution records
+   */
+  async getTradingAllowanceHistory(walletAddress, limit = 50) {
+    const db = this.getFirestore();
+    const snapshot = await db.collection('trading_allowance_distributions')
+      .where('wallet_address', '==', walletAddress.toLowerCase())
+      .orderBy('distributed_at', 'desc')
+      .limit(limit)
+      .get();
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
 }
 
 const firebaseClient = new FirebaseClient();
