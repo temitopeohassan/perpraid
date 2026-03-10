@@ -1,0 +1,23 @@
+{
+  "name": "stacks-dydx-trading-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Workspace scripts for the Stacks-dYdX trading gateway applications.",
+  "scripts": {
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "typecheck:backend": "npm --prefix backend run typecheck",
+    "typecheck:frontend": "npm --prefix frontend run typecheck"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/temitopeohassan/perpraid.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/temitopeohassan/perpraid/issues"
+  },
+  "homepage": "https://github.com/temitopeohassan/perpraid#readme"
+}
